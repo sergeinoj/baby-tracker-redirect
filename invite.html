@@ -1,0 +1,49 @@
+<!-- Имя файла: invite.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Baby Tracker Invite</title>
+    <!-- Эти теги помогают ссылке красиво выглядеть в мессенджерах -->
+    <meta property="og:title" content="Приглашение в Baby Tracker" />
+    <meta property="og:description" content="Нажмите, чтобы присоединиться к совместному ведению дневника малыша." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 40px; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #E4B6A6; color: white; text-decoration: none; border-radius: 8px; }
+    </style>
+    <script type="text/javascript">
+        function redirect() {
+            // 1. Получаем folderId из параметров URL (?folderId=...)
+            const params = new URLSearchParams(window.location.search);
+            const folderId = params.get('folderId');
+
+            if (!folderId) {
+                document.getElementById('status').innerText = 'Ошибка: ID для синхронизации не найден в ссылке.';
+                return;
+            }
+
+            // 2. Собираем наш Deep Link
+            const deepLink = "babytracker://sync?folderId=" + folderId;
+            document.getElementById('status').innerText = 'Перенаправляем в приложение...';
+
+            // 3. Пытаемся открыть приложение
+            window.location.href = deepLink;
+
+            // 4. Запасной план: если приложение не установлено, через 2 секунды перенаправляем в Google Play
+            setTimeout(function () {
+                const playStoreUrl = "https://play.google.com/store/apps/details?id=com.babytracker";
+                document.getElementById('status').innerText = 'Приложение не установлено. Перенаправляем в Google Play...';
+                window.location.href = playStoreUrl;
+            }, 2000);
+        }
+        // Запускаем редирект сразу после загрузки страницы
+        window.onload = redirect;
+    </script>
+</head>
+<body>
+    <h1 id="status">Загрузка...</h1>
+    <p>Если ничего не происходит, убедитесь, что приложение Baby Tracker установлено.</p>
+    <a href="https://play.google.com/store/apps/details?id=com.babytracker" class="button">Установить из Google Play</a>
+</body>
+</html>
