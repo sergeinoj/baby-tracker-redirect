@@ -1,49 +1,54 @@
-<!-- Имя файла: invite.html -->
+// Имя файла: invite.html
+// --- НАЧАЛО ФАЙЛА ---
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title>Baby Tracker Invite</title>
-    <!-- Эти теги помогают ссылке красиво выглядеть в мессенджерах -->
-    <meta property="og:title" content="Приглашение в Baby Tracker" />
-    <meta property="og:description" content="Нажмите, чтобы присоединиться к совместному ведению дневника малыша." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 40px; }
-        .button { display: inline-block; padding: 10px 20px; background-color: #E4B6A6; color: white; text-decoration: none; border-radius: 8px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f5efe6; text-align: center; color: #1C1B1F; }
+        .container { max-width: 350px; padding: 20px; }
+        h1 { font-size: 2.5em; margin-bottom: 20px; }
+        p { font-size: 1.1em; line-height: 1.6; color: #605D62; }
+        .button { display: inline-block; padding: 15px 30px; margin-top: 30px; background-color: #E4B6A6; color: white; text-decoration: none; border-radius: 12px; font-size: 1.2em; font-weight: bold; border: none; cursor: pointer; }
+        #message { margin-top: 20px; font-weight: bold;}
     </style>
-    <script type="text/javascript">
-        function redirect() {
-            // 1. Получаем folderId из параметров URL (?folderId=...)
-            const params = new URLSearchParams(window.location.search);
-            const folderId = params.get('folderId');
-
-            if (!folderId) {
-                document.getElementById('status').innerText = 'Ошибка: ID для синхронизации не найден в ссылке.';
-                return;
-            }
-
-            // 2. Собираем наш Deep Link
-            const deepLink = "babytracker://sync?folderId=" + folderId;
-            document.getElementById('status').innerText = 'Перенаправляем в приложение...';
-
-            // 3. Пытаемся открыть приложение
-            window.location.href = deepLink;
-
-            // 4. Запасной план: если приложение не установлено, через 2 секунды перенаправляем в Google Play
-            setTimeout(function () {
-                const playStoreUrl = "https://play.google.com/store/apps/details?id=com.babytracker";
-                document.getElementById('status').innerText = 'Приложение не установлено. Перенаправляем в Google Play...';
-                window.location.href = playStoreUrl;
-            }, 2000);
-        }
-        // Запускаем редирект сразу после загрузки страницы
-        window.onload = redirect;
-    </script>
 </head>
 <body>
-    <h1 id="status">Загрузка...</h1>
-    <p>Если ничего не происходит, убедитесь, что приложение Baby Tracker установлено.</p>
-    <a href="https://play.google.com/store/apps/details?id=com.babytracker" class="button">Установить из Google Play</a>
+    <div class="container">
+        <h1 id="status-title">Принятие приглашения...</h1>
+        <p id="status-description">Сейчас мы попробуем автоматически открыть приложение Baby Tracker для завершения настройки.</p>
+        <div id="message"></div>
+        <a id="store-link" href="https://play.google.com/store/apps/details?id=com.babytracker" class="button" style="display: none;">Установить из Google Play</a>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ownerEmail = urlParams.get('owner');
+            const statusTitle = document.getElementById('status-title');
+            const statusDescription = document.getElementById('status-description');
+            const storeLink = document.getElementById('store-link');
+
+            if (ownerEmail) {
+                // Пытаемся открыть приложение через deep link
+                const deepLink = "babytracker://sync?owner=" + encodeURIComponent(ownerEmail);
+                window.location.href = deepLink;
+
+                // Если приложение не открылось за 2 секунды, показываем кнопку для установки
+                setTimeout(function() {
+                    statusTitle.textContent = "Ничего не произошло?";
+                    statusDescription.innerHTML = "Если приложение не открылось, убедитесь, что оно установлено на вашем устройстве, и попробуйте снова.<br><br>Или установите его из Google Play.";
+                    storeLink.style.display = 'inline-block';
+                }, 2000);
+
+            } else {
+                statusTitle.textContent = "Ошибка: Email владельца не найден в ссылке.";
+                statusDescription.textContent = "Попросите владельца отправить вам новое приглашение.";
+                storeLink.style.display = 'none';
+            }
+        };
+    </script>
 </body>
 </html>
+// --- КОНЕЦ ФАЙЛА ---
